@@ -73,7 +73,7 @@ type MkFileMode struct {
 const defaultMkFileMode = 0644
 
 func newMkFileMode() *MkFileMode {
-	return &MkFileMode{fileMode: defaultMkFileMode}
+	return &MkFileMode{fileMode: defaultMkFileMode, recursion: true}
 }
 
 func WithFileMode(fileMode uint32) MkDirOptions {
