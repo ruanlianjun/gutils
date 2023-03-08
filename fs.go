@@ -1,6 +1,7 @@
 package gutils
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -44,6 +45,7 @@ func MkdirAll(path string, options ...MkDirOptions) error {
 			path = filepath.Dir(path)
 		}
 
+		fmt.Println("======path:", path)
 		fileMode := newMkFileMode()
 		for _, item := range options {
 			item(fileMode)
@@ -70,7 +72,7 @@ type MkFileMode struct {
 	recursion bool //是否递归创建
 }
 
-const defaultMkFileMode = 0644
+const defaultMkFileMode = 0777
 
 func newMkFileMode() *MkFileMode {
 	return &MkFileMode{fileMode: defaultMkFileMode, recursion: true}
@@ -82,8 +84,8 @@ func WithFileMode(fileMode uint32) MkDirOptions {
 	}
 }
 
-func WithMkRecursion(recursion bool) MkDirOptions {
+func WithMkNotRecursion() MkDirOptions {
 	return func(mode *MkFileMode) {
-		mode.recursion = recursion
+		mode.recursion = false
 	}
 }
