@@ -37,7 +37,7 @@ func SetRows(content []table.Row) Options {
 	}
 }
 
-func isTerminal() Options {
+func SetIsTerminal() Options {
 	return func(rTable *Table) {
 		rTable.isTerminal = true
 	}
