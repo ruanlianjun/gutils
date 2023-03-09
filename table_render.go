@@ -1,11 +1,12 @@
 package gutils
 
 import (
-	"html/template"
+	"fmt"
 	"io"
 	"os"
 
 	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/jedib0t/go-pretty/v6/text"
 )
 
 type Table struct {
@@ -25,32 +26,25 @@ func newTable() *Table {
 	}
 }
 
-func SetHeaders(headers []any) Options {
+func SetTableHeaders(headers []any) Options {
 	return func(rTable *Table) {
 		rTable.Headers = headers
 	}
 }
 
-func SetRows(contents [][]any) Options {
+func SetTableRows(contents [][]any) Options {
 	rows := make([]table.Row, 0, len(contents))
 
-	From(func(source chan<- any) {
-		for _, item := range contents {
-			source <- item
-		}
-	}).Buffer(10).ForAll(func(pipe <-chan any) {
-		item := <-pipe
-		if row, ok := item.(table.Row); ok {
-			rows = append(rows, row)
-		}
-	})
+	for _, item := range contents {
+		rows = append(rows, item)
+	}
 
 	return func(rTable *Table) {
 		rTable.Rows = rows
 	}
 }
 
-func SetIsTerminal() Options {
+func SetRenderIsTerminal() Options {
 	return func(rTable *Table) {
 		rTable.isTerminal = true
 	}
@@ -67,24 +61,27 @@ func TerminalRender(options ...Options) {
 	for _, item := range options {
 		item(t)
 	}
-
-	tmpl := template.Must(template.
-		New("").
-		Funcs(map[string]interface{}{
-			"table": func(tab *Table) string {
-				w := table.NewWriter()
-				w.AppendHeader(tab.Headers)
-				w.AppendRows(tab.Rows)
-				if t.isTerminal {
-					return w.Render()
-				}
-				return w.RenderCSV()
-			},
-		}).
-		Parse(`{{ . | table }}`))
 	tbl := &Table{
 		Headers: t.Headers,
 		Rows:    t.Rows,
 	}
-	_ = tmpl.Execute(t.writer, tbl)
+	tw := table.NewWriter()
+	tw.AppendHeader(tbl.Headers, table.RowConfig{
+		AutoMerge: true,
+	})
+	tw.AppendRows(tbl.Rows)
+
+	l := len(tbl.Rows)
+	columnConfig := make([]table.ColumnConfig, 0, l)
+	for i := 0; i < l; i++ {
+		columnConfig = append(columnConfig,
+			table.ColumnConfig{
+				Number: i, Align: text.AlignLeft, AlignHeader: text.AlignCenter, AlignFooter: text.AlignCenter, WidthMin: 26, WidthMaxEnforcer: text.WrapHard,
+			})
+	}
+	tw.SetColumnConfigs(columnConfig)
+	tw.SetStyle(table.StyleLight)
+	tw.Style().Options.SeparateRows = true
+	tw.SetAutoIndex(true)
+	fmt.Fprintf(t.writer, "%s", tw.Render())
 }
