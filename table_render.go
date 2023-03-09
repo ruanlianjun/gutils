@@ -83,5 +83,5 @@ func TerminalRender(options ...Options) {
 	tw.SetStyle(table.StyleLight)
 	tw.Style().Options.SeparateRows = true
 	tw.SetAutoIndex(true)
-	fmt.Fprintf(t.writer, "%s", tw.Render())
+	fmt.Fprintf(t.writer, "%s\n", tw.Render())
 }

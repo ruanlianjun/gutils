@@ -5,5 +5,5 @@ import (
 )
 
 func TestTerminalRender(t *testing.T) {
-	TerminalRender(SetIsTerminal())
+	TerminalRender()
 }

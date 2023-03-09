@@ -1,7 +1,6 @@
 package gutils
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 )
@@ -45,7 +44,6 @@ func MkdirAll(path string, options ...MkDirOptions) error {
 			path = filepath.Dir(path)
 		}
 
-		fmt.Println("======path:", path)
 		fileMode := newMkFileMode()
 		for _, item := range options {
 			item(fileMode)

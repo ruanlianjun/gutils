@@ -17,7 +17,7 @@ func TestMkdirAll(t *testing.T) {
 		{
 			name: "exits",
 			args: args{
-				path:    "tmp/demo/demo.png",
+				path:    "tmp/demo/demo/demo.png",
 				options: []MkDirOptions{},
 			},
 		},
