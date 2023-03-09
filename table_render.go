@@ -25,15 +25,28 @@ func newTable() *Table {
 	}
 }
 
-func SetHeaders(headers table.Row) Options {
+func SetHeaders(headers []any) Options {
 	return func(rTable *Table) {
 		rTable.Headers = headers
 	}
 }
 
-func SetRows(content []table.Row) Options {
+func SetRows(contents [][]any) Options {
+	rows := make([]table.Row, 0, len(contents))
+
+	From(func(source chan<- any) {
+		for _, item := range contents {
+			source <- item
+		}
+	}).Buffer(10).ForAll(func(pipe <-chan any) {
+		item := <-pipe
+		if row, ok := item.(table.Row); ok {
+			rows = append(rows, row)
+		}
+	})
+
 	return func(rTable *Table) {
-		rTable.Rows = content
+		rTable.Rows = rows
 	}
 }
 
