@@ -18,6 +18,7 @@ type (
 	ForAllFun   func(pipe <-chan any)
 	ForEachFun  func(item any)
 	WalkFunc    func(item any, pipe chan<- any)
+	FilterFunc  func(item any) bool
 
 	Stream struct {
 		source <-chan any
@@ -109,6 +110,14 @@ func (s Stream) Walk(fn WalkFunc, opts ...Option) Stream {
 	}
 
 	return s.walkWithLimit(fn, option)
+}
+
+func (s Stream) Filter(fn FilterFunc, opt ...Option) Stream {
+	return s.Walk(func(item any, pipe chan<- any) {
+		if fn(item) {
+			pipe <- item
+		}
+	}, opt...)
 }
 
 func (s Stream) walkUnlimited(fn WalkFunc, option *rxOptions) Stream {

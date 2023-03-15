@@ -13,19 +13,24 @@ func TestRunInterceptor(t *testing.T) {
 		fmt.Println("start", *data)
 		return nil
 	}, func(next NextInterceptorFunction[*int64]) NextInterceptorFunction[*int64] {
-		data -= 1
 		return func(data *int64) error {
+			*data -= 1
 			fmt.Println("start-1", *data)
-			next(data)
-			fmt.Println("after")
+			err := next(data)
+			if err != nil {
+				panic(err)
+			}
 			return nil
 		}
 	}, func(next NextInterceptorFunction[*int64]) NextInterceptorFunction[*int64] {
-		data -= 1
 		return func(data *int64) error {
+			*data -= 1
 			fmt.Println("start-2", *data)
-			next(data)
-			fmt.Println("after-2")
+			err := next(data)
+			if err != nil {
+				panic(err)
+			}
+
 			return nil
 		}
 	})
